@@ -3,13 +3,23 @@ services:
     build:
       context: ./backend/src
       dockerfile: Fundo.Applications.WebApi/Dockerfile
+      target: build
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
+      DOTNET_USE_POLLING_FILE_WATCHER: "1"
+      DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER: "1"
       ConnectionStrings__Default: Server=db;Database=FundoLoans;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;Encrypt=False
       Authentication__ApiKey: ${API_KEY:-dev-api-key}
+    working_dir: /src/Fundo.Applications.WebApi
+    entrypoint: ["dotnet"]
+    command: ["watch", "run", "--urls", "http://0.0.0.0:8080"]
     ports:
       - "8080:8080"
+    volumes:
+      - ./backend/src:/src
+      - /src/Fundo.Applications.WebApi/bin
+      - /src/Fundo.Applications.WebApi/obj
     healthcheck:
       test:
         [
@@ -28,10 +38,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    environment:
-      CHOKIDAR_USEPOLLING: "true"
     ports:
       - "4200:4200"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
     depends_on:
       api:
         condition: service_healthy

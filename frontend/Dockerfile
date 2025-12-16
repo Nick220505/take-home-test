@@ -1,12 +1,13 @@
-FROM node:22-bookworm-slim
+FROM node:22 AS dev
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm ci
+
+RUN npm install
 
 COPY . .
 
 EXPOSE 4200
 
-CMD ["npm", "start", "--", "--host", "0.0.0.0", "--port", "4200"]
+CMD ["npm", "start", "--", "--host", "0.0.0.0", "--poll", "500"]
