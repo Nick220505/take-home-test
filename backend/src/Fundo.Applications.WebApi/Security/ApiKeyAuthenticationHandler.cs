@@ -42,7 +42,7 @@ namespace Fundo.Applications.WebApi.Security
 
             if (!string.Equals(providedKey.ToString(), configuredKey))
             {
-                return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
+                return Task.FromResult(AuthenticateResult.NoResult());
             }
 
             var claims = new[]

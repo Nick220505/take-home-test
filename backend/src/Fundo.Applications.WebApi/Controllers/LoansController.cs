@@ -1,6 +1,5 @@
 using Fundo.Applications.WebApi.Application.Loans;
 using Fundo.Applications.WebApi.Contracts.Loans;
-using Fundo.Applications.WebApi.Domain.Loans;
 using Fundo.Applications.WebApi.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,7 +32,7 @@ namespace Fundo.Applications.WebApi.Controllers
         public async Task<ActionResult<LoanResponse>> Create([FromBody] CreateLoanRequest request, CancellationToken ct)
         {
             var loan = await _loanService.CreateAsync(request.Amount, request.ApplicantName, ct);
-            return CreatedAtAction(nameof(GetById), new { id = loan.Id }, Map(loan));
+            return CreatedAtAction(nameof(GetById), new { id = loan.Id }, LoanResponse.From(loan));
         }
 
         [HttpGet("{id:guid}")]
@@ -49,7 +48,7 @@ namespace Fundo.Applications.WebApi.Controllers
                 throw new KeyNotFoundException("Loan not found.");
             }
 
-            return Ok(Map(loan));
+            return Ok(LoanResponse.From(loan));
         }
 
         [HttpGet]
@@ -58,7 +57,7 @@ namespace Fundo.Applications.WebApi.Controllers
         public async Task<ActionResult<IEnumerable<LoanResponse>>> List(CancellationToken ct)
         {
             var loans = await _loanService.ListAsync(ct);
-            return Ok(loans.Select(Map));
+            return Ok(loans.Select(LoanResponse.From));
         }
 
         [HttpPost("{id:guid}/payment")]
@@ -71,19 +70,7 @@ namespace Fundo.Applications.WebApi.Controllers
         public async Task<ActionResult<LoanResponse>> ApplyPayment(Guid id, [FromBody] ApplyPaymentRequest request, CancellationToken ct)
         {
             var loan = await _loanService.ApplyPaymentAsync(id, request.Amount, ct);
-            return Ok(Map(loan));
-        }
-
-        private static LoanResponse Map(Loan loan)
-        {
-            return new LoanResponse
-            {
-                Id = loan.Id,
-                Amount = loan.Amount,
-                CurrentBalance = loan.CurrentBalance,
-                ApplicantName = loan.ApplicantName,
-                Status = loan.Status
-            };
+            return Ok(LoanResponse.From(loan));
         }
 
     }

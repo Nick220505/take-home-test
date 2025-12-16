@@ -1,0 +1,27 @@
+.loans {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  padding: 48px 20px;
+  min-height: 100vh;
+
+  &--container {
+    width: min(900px, 100%);
+  }
+
+  h1 {
+    margin: 0 0 24px;
+    font-size: 34px;
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 992px) {
+  .loans {
+    &--container {
+      width: 100%;
+    }
+  }
+}
