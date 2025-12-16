@@ -6,9 +6,10 @@ import { Loan } from '../models/loan';
 
 @Injectable({ providedIn: 'root' })
 export class LoansService {
+  private readonly apiUrl = `${environment.apiBaseUrl}/loans`;
   private readonly http = inject(HttpClient);
 
   listLoans(): Observable<Loan[]> {
-    return this.http.get<Loan[]>(`${environment.apiBaseUrl}/loans`);
+    return this.http.get<Loan[]>(this.apiUrl);
   }
 }
