@@ -1,4 +1,4 @@
 export const environment = {
   apiBaseUrl: 'http://localhost:8080',
-  apiKey: 'test-api-key',
+  apiKey: 'dev-api-key',
 };

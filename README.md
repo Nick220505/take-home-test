@@ -25,6 +25,7 @@ Notes:
 
 - The API waits for the DB to be healthy.
 - The frontend waits for the API to be healthy.
+- The API runs with `dotnet watch` in Docker Compose to support backend hot reload during local development.
 
 To stop and remove volumes:
 
@@ -39,6 +40,11 @@ Write endpoints are protected by an API key:
 - `POST /loans`
 - `POST /loans/{id}/payment`
 
+Read endpoints are public:
+
+- `GET /loans`
+- `GET /loans/{id}`
+
 Send this header:
 
 - `X-Api-Key: <your-key>`
@@ -46,6 +52,8 @@ Send this header:
 Default in Docker Compose:
 
 - `API_KEY=dev-api-key`
+
+The frontend can also send an API key via its HTTP interceptor (see `frontend/src/environments/environment.ts`) if you want to try write endpoints from the UI.
 
 In Swagger:
 
@@ -87,6 +95,12 @@ From repo root:
 
 ```bash
 docker run --rm --network take-home-test_default -v "$(pwd):/repo" -w /repo/backend/src mcr.microsoft.com/dotnet/sdk:6.0 dotnet test
+```
+
+PowerShell:
+
+```powershell
+docker run --rm --network take-home-test_default -v "${PWD}:/repo" -w /repo/backend/src mcr.microsoft.com/dotnet/sdk:6.0 dotnet test
 ```
 
 ## Helpful REST client file
