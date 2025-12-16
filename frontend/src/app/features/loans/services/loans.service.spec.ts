@@ -5,7 +5,7 @@ import {
 } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { environment } from '@env';
 import { Loan } from '../models/loan';
 import { LoansService } from './loans.service';
 
