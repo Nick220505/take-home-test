@@ -1,83 +1,104 @@
-# **Take-Home Test: Backend-Focused Full-Stack Developer (.NET C# & Angular)**
+# Loan Management System (Take-Home)
 
-## **Objective**
+This repository contains:
 
-This take-home test evaluates your ability to develop and integrate a .NET Core (C#) backend with an Angular frontend, focusing on API design, database integration, and basic DevOps practices.
+- `backend/`: .NET 6 Web API (EF Core + SQL Server)
+- `frontend/`: Angular app
+- `compose.yaml`: Docker Compose to run the full stack locally
 
-## **Instructions**
+## Quickstart (Docker)
 
-1.  **Fork the provided repository** before starting the implementation.
-2.  Implement the requested features in your forked repository.
-3.  Once you have completed the implementation, **send the link** to your forked repository via email for review.
+From the repository root:
 
-## **Task**
+```bash
+docker compose up --build
+```
 
-You will build a simple **Loan Management System** with a **.NET Core backend (C#)** exposing RESTful APIs and a **basic Angular frontend** consuming these APIs.
+Services:
 
----
+- API: `http://localhost:8080`
+- Swagger UI: `http://localhost:8080/swagger`
+- Health endpoint: `http://localhost:8080/health`
+- Frontend: `http://localhost:4200`
 
-## **Requirements**
+Notes:
 
-### **1. Backend (API) - .NET Core**
+- The API waits for the DB to be healthy.
+- The frontend waits for the API to be healthy.
 
-* Create a **RESTful API** in .NET Core to handle **loan applications**.
-* Implement the following endpoints:
-    * `POST /loans` → Create a new loan.
-    * `GET /loans/{id}` → Retrieve loan details.
-    * `GET /loans` → List all loans.
-    * `POST /loans/{id}/payment` → Deduct from `currentBalance`.
-* Loan example (feel free to improve it):
+To stop and remove volumes:
 
-    ```json
-    {
-        "amount": 1500.00, // Amount requested
-        "currentBalance": 500.00, // Remaining balance
-        "applicantName": "Maria Silva", // User name
-        "status": "active" // Status can be active or paid
-    }
-    ```
+```bash
+docker compose down -v
+```
 
-* Use **Entity Framework Core** with **SQL Server**.
-* Create seed data to populate the loans (the frontend will consume this).
-* Write **unit/integration tests for the API** (xUnit or NUnit).
-* **Dockerize** the backend and create a **Docker Compose** file.
-* Create a README with setup instructions.
+## API Authentication (API Key)
 
-### **2. Frontend - Angular (Simplified UI)**  
+Write endpoints are protected by an API key:
 
-Develop a **lightweight Angular app** to interact with the backend
+- `POST /loans`
+- `POST /loans/{id}/payment`
 
-#### **Features:**  
-- A **table** to display a list of existing loans.  
+Send this header:
 
-#### **Mockup:**  
-[View Mockup](https://kzmgtjqt0vx63yji8h9l.lite.vusercontent.net/)  
-(*The design doesn’t need to be an exact replica of the mockup—it serves as a reference. Aim to keep it as close as possible.*)  
+- `X-Api-Key: <your-key>`
 
----
+Default in Docker Compose:
 
-## **Bonus (Optional, Not Required)**
+- `API_KEY=dev-api-key`
 
-* **Improve error handling and logging** with structured logs.
-* Implement **authentication**.
-* Create a **GitHub Actions** pipeline for building and testing the backend.
+In Swagger:
 
----
+- Open `http://localhost:8080/swagger`
+- Click **Authorize**
+- Enter the API key value for the `X-Api-Key` header
 
-## **Evaluation Criteria**
+## Configuration
 
-✔ **Code quality** (clean architecture, modularization, best practices).
+### Environment variables (Docker Compose)
 
-✔ **Functionality** (the API and frontend should work as expected).
+- `MSSQL_SA_PASSWORD`
+  - Default: `Password123!`
+- `API_KEY`
+  - Default: `dev-api-key`
 
-✔ **Security considerations** (authentication, validation, secure API handling).
+### Seed data
 
-✔ **Testing coverage** (unit tests for critical backend functions).
+The API can seed initial loans (safe/idempotent seeding). Configuration keys:
 
-✔ **Basic DevOps implementation** (Docker for backend).
+- `SeedData:Enabled`
+- `SeedData:Reseed`
 
----
+Defaults are development-friendly; you can override via environment variables if needed.
 
-## **Additional Information**
+## Testing
 
-Candidates are encouraged to include a `README.md` file in their repository detailing their implementation approach, any challenges they faced, features they couldn't complete, and any improvements they would make given more time. Ideally, the implementation should be completed within **two days** of starting the test.
+### Option A: Local (requires .NET 6 SDK/runtime)
+
+From `backend/src`:
+
+```bash
+dotnet test
+```
+
+### Option B: Docker (.NET 6 SDK container)
+
+From repo root:
+
+```bash
+docker run --rm --network take-home-test_default -v "$(pwd):/repo" -w /repo/backend/src mcr.microsoft.com/dotnet/sdk:6.0 dotnet test
+```
+
+## Helpful REST client file
+
+If you use the VS Code REST Client extension, you can run requests from:
+
+- `backend/src/Fundo.Applications.WebApi/loans.http`
+
+## CI
+
+A GitHub Actions workflow is included:
+
+- `.github/workflows/backend-ci.yml`
+
+It builds and tests the backend on PRs and pushes to `main`.

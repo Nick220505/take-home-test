@@ -1,0 +1,40 @@
+name: Backend CI
+
+on:
+  pull_request:
+    branches:
+      - development
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "6.0.x"
+
+      - name: Restore
+        working-directory: backend/src
+        run: dotnet restore
+
+      - name: Build
+        working-directory: backend/src
+        run: dotnet build --no-restore -c Release
+
+      - name: Test
+        working-directory: backend/src
+        run: dotnet test --no-build -c Release

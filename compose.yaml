@@ -6,11 +6,23 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Default: Server=db;Database=FundoLoans;User Id=sa;Password=${MSSQL_SA_PASSWORD:-YourStrong!Passw0rd};TrustServerCertificate=True;Encrypt=False
+      ConnectionStrings__Default: Server=db;Database=FundoLoans;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Password123!};TrustServerCertificate=True;Encrypt=False
+      Authentication__ApiKey: ${API_KEY:-dev-api-key}
     ports:
       - "8080:8080"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:8080/health > /dev/null || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -21,13 +33,20 @@ services:
     ports:
       - "4200:4200"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-YourStrong!Passw0rd}
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-Password123!}
+    healthcheck:
+      test: ["CMD-SHELL", 'bash -c "echo > /dev/tcp/localhost/1433"']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
     ports:
       - "1433:1433"
     volumes:
