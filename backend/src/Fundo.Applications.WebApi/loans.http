@@ -1,0 +1,62 @@
+@baseUrl = http://localhost:8080
+@contentType = application/json
+@apiKey = dev-api-key
+
+### List loans
+# @name listLoans
+GET {{baseUrl}}/loans
+
+### Create a new loan
+# @name createLoan
+POST {{baseUrl}}/loans
+Content-Type: {{contentType}}
+X-Api-Key: {{apiKey}}
+
+{
+  "amount": 1234.56,
+  "applicantName": "REST Client User"
+}
+
+### Get the created loan by id
+@loanId = {{createLoan.response.body.id}}
+GET {{baseUrl}}/loans/{{loanId}}
+
+### Apply a payment to the created loan
+POST {{baseUrl}}/loans/{{loanId}}/payment
+Content-Type: {{contentType}}
+X-Api-Key: {{apiKey}}
+
+{
+  "amount": 100
+}
+
+### Apply an overpayment (should return 400 ProblemDetails)
+POST {{baseUrl}}/loans/{{loanId}}/payment
+Content-Type: {{contentType}}
+X-Api-Key: {{apiKey}}
+
+{
+  "amount": 999999
+}
+
+### Create loan validation error (amount = 0) -> 400 with validation errors
+POST {{baseUrl}}/loans
+Content-Type: {{contentType}}
+X-Api-Key: {{apiKey}}
+
+{
+  "amount": 0,
+  "applicantName": "Bad Request"
+}
+
+### Create loan validation error (missing applicantName) -> 400 with validation errors
+POST {{baseUrl}}/loans
+Content-Type: {{contentType}}
+X-Api-Key: {{apiKey}}
+
+{
+  "amount": 100
+}
+
+### Get missing loan -> 404
+GET {{baseUrl}}/loans/00000000-0000-0000-0000-000000000000

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Serilog;
 using System;
 
 namespace Fundo.Applications.WebApi
@@ -25,6 +26,11 @@ namespace Fundo.Applications.WebApi
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             return WebHost.CreateDefaultBuilder(args)
+                .UseSerilog((context, loggerConfiguration) =>
+                    loggerConfiguration
+                        .ReadFrom.Configuration(context.Configuration)
+                        .Enrich.FromLogContext()
+                        .WriteTo.Console())
                 .UseStartup<Startup>();
         }
     }
